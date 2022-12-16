@@ -1,0 +1,200 @@
+#calculate a quadratic formula
+#(x1)x^2 + (x2)x + x3 = 0
+#x4 and x5 will be the answers 
+
+ADDI x1, x0, 6  #a
+ADDI x2, x0, 8  #b
+ADDI x3, x0, -2  #c
+########################################
+
+#2a is calculated here and stored to x11
+ADD x11, x1, x1
+########################################
+
+#-b is calculated here and stored to x12
+SUB x12, x0, x2
+########################################
+
+#b^2 is calculated here and stored to x13
+
+#check if b is negative and convert it to positive if true
+ADD x8, x0, x2
+BLT x0, x2, pos
+SUB x8, x0, x2 #this line is skipped if b is a positive number
+
+pos:
+ADD x13, x0, x8
+ADDI x6, x0, 1
+
+potency: 
+ADD x13, x13, x8
+ADDI x6, x6, 1
+BLT x6, x8, potency
+########################################
+
+
+#4*a*c is calculated here and stored to x14
+#x9 is used to tell if x14 is supposed to be positive or negative since only positive numbers will be used for the multipication process
+## tästä voi tehdä ehkä paremman jos käyttää samaa muttujaa kertojana ja looppaa kahella eri tavalla läpi
+ADDI x14, x0, 4
+ADDI x6, x0, 1
+ADDI x9, x0, 1
+
+#check if a is negative and convert it to positive if true
+BLT x0, x1, pos3
+SUB x8, x0, x1 #this line is skipped if a is a positive number
+SUB x9, x0, x9
+JAL x0, first
+
+pos3:
+ADD x8, x0, x1  
+first:
+ADDI x14, x14, 4
+ADDI x6, x6, 1
+BLT x6, x8, first
+
+ADD x7, x0, x14
+ADDI x6, x0, 1
+
+#check if c is negative and convert it to positive if true
+BLT x0, x3, pos2
+SUB x8, x0, x3 #this line is skipped if c is a positive number
+SUB x9, x0, x9
+JAL x0, second
+
+pos2: 
+ADD x8, x0, x3
+second: 
+ADD x14, x14, x7
+ADDI x6, x6, 1
+BLT x6, x8, second
+
+#Here we will check if x14 is supposed to be positive
+BLT x0, x9, ispos
+SUB x14, x0, x14
+
+ispos:
+########################################
+
+
+#b^2 - 4ac is calculated here and stored to x15
+SUB x15, x13, x14
+#If x15 is x has no 0 point and the equation has no answer
+BLT x15, x0, end
+
+########################################
+
+
+#sqrt(b^2 - 4ac) is calculated here and stored to x16
+#This is impossible to calculate accurately unless sqrt(x) is a whole number
+#From google I found that there are risc-v version that have div and mul instructions which could be used to solve this better
+
+ADD x8, x0, x0
+
+again:
+ADD x7, x0, x0
+ADDI x8, x8, 1
+ADD x6, x0, x0
+potency1:
+
+ADD x7, x7, x8
+ADDI x6, x6, 1
+BLT x6, x8, potency1
+BLT x7, x15, again
+
+ADD x16, x0, x8
+BEQ x7, x15, iseq
+ADDI x16, x16, -1
+iseq:
+SUB x17, x0, x16
+
+########################################
+
+#-b +/- sqrt(b^2 - 4ac)  is calculated here and stored into x17, x18
+
+ADD x17, x12, x16
+SUB x18, x12, x16
+
+########################################
+
+#lastly we calculate calculate the division and save answers to x4, x5 and those will be the final answers
+ADDI x4, x0, 1 #These are used to determine if the values should be positive or negative
+ADDI x5, x0, 1 #These are used to determine if the values should be positive or negative
+
+#check if 2a is negative
+BLT x0, x11, pos4
+SUB x4, x0, x4
+SUB x5, x0, x5
+SUB x11, x0, x11
+pos4:
+
+#check if x17 is negative
+BLT x0, x17, pos5
+SUB x4, x0, x4
+SUB x17, x0, x17
+pos5:
+
+ADD x8, x0, x0
+
+again1:
+ADD x19, x0, x0
+ADD x7, x0, x0
+ADDI x8, x8, 1
+
+div:
+
+ADD x19, x19, x8
+ADDI x7, x7, 1
+BNE x7, x11, div
+BLT x19, x17, again1
+
+BLT x0, x4, done1
+SUB x4, x0, x8
+BEQ x19, x17, done11
+ADDI x4, x4, 1
+JAL x0, done1
+
+done1:
+ADD x4, x0, x8
+BEQ x19, x17, done11
+ADDI x4, x4, -1
+done11:
+
+
+ADD x19, x0, x0
+
+#Second value of x
+#check if x18 is negative
+BLT x0, x18, pos6
+SUB x5, x0, x5
+SUB x18, x0, x18
+pos6:
+
+ADD x8, x0, x0
+
+again2:
+ADD x19, x0, x0
+ADD x7, x0, x0
+ADDI x8, x8, 1
+
+div1:
+
+ADD x19, x19, x8
+ADDI x7, x7, 1
+BNE x7, x11, div1
+BLT x19, x18, again2
+
+BLT x0, x5, done2
+SUB x5, x0, x8
+BEQ x19, x18, done22
+ADDI x5, x5, 1
+JAL x0, done22
+
+done2:
+ADD x5, x0, x8
+BEQ x19, x18, done22
+ADDI x5, x5, -1
+done22:
+
+
+end:
