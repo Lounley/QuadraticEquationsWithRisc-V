@@ -1,0 +1,28 @@
+case1
+a = -3
+b = 10
+c = -3
+
+High level result: 0.333, 3
+Low level result:  0, 3
+Analysis: Low level implementation only stores values as integers so 0.333 -> 0
+
+
+case2
+a = 5
+b = -3
+c = 2
+
+High level result: no answer ( answer is complex ) 
+Low level result:  no answer ( answer is complex )
+Analysis: Both implementations were able to determine that the answer is complex and didn’t give an answer as they don’t calculate complex answers
+
+
+case3
+a = 6
+b = 8
+c = -2
+
+High level result: 0.21525, -1.54858
+Low level result:  0, 1
+Analysis: same as case1
